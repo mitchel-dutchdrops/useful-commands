@@ -1,0 +1,3 @@
+cp $1 /usr/local/bin
+
+cp $1 ~/custom_scripts

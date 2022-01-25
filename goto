@@ -1,0 +1,39 @@
+if [ -z $1 ];
+    then
+        echo "Please make sure to enter the site first"
+        read site;
+    else 
+        site=$1;
+    fi
+PROCESSES=$(ps aux | grep '/usr/local/bin/goto' | awk '{print $2}' | sed 's/'$$'//' 2>/dev/null )
+    if [[ $PROCESSES ]]
+    then
+        for process in $PROCESSES
+        do
+        echo $process
+        if [[ $process == $$ ]]
+            then 
+            echo 
+                continue
+            else 
+                kill -9 $process
+            fi 
+        done
+        
+    fi
+
+for i in ~/sites/*
+        do
+                if [ -d "$i/$site" ]
+                then
+                                clear
+                                echo "$i" >> /tmp/forwards.txt
+                                echo "Sending you to "$i/$site
+                                cd "$i/$site"
+                                
+                                $SHELL
+                                exit
+                fi
+done
+
+echo "No site found with the name $site"

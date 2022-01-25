@@ -1,0 +1,23 @@
+echo "Please enter the URL"
+read host
+
+if [ $host = 'exit' ];
+then
+    echo "Exitting command have a nice day"
+    exit 1
+else
+    echo "What port do you want to use?"
+    read port
+
+    if [ $port = "exit" ];
+    then
+        echo "Exitting command have a nice day"
+        exit 1
+    else
+        echo "Connecting to $host:$port"
+        ssh -p $port $host
+    fi
+
+fi
+
+ssh -p $port $host

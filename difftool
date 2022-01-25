@@ -1,0 +1,39 @@
+if [ "$1" != "--config" ];
+then
+    
+    if [ "$1" != "--change-config" ];
+    then
+    if [ -z $1 ];
+        then
+            echo "Please make sure to enter the first version"
+            read VERSION1;
+        else 
+            VERSION1=$1;
+        fi
+
+        if [ -z $2 ];
+        then
+            echo "Please make sure to enter the second version"
+            read VERSION2;
+        else 
+            VERSION2=$2;
+        fi
+    else 
+    code ~/.config/difftool.config
+    exit
+    fi
+else
+
+    VERSION1=`cat ~/.config/difftool.config | grep VERSION1=* | sed -e "s/^VERSION1=//"| sed -e "s/\"//g"`
+    VERSION2=`cat ~/.config/difftool.config | grep VERSION2=* | sed -e "s/^VERSION2=//"| sed -e "s/\"//g"`
+fi
+
+if [ -z $3 ];
+then
+    echo "Please make sure to enter a file"
+    read FILE;
+else 
+    FILE=$3;
+fi
+echo "git difftool $VERSION1 $VERSION2 $FILE"
+git difftool $VERSION1 $VERSION2 $FILE

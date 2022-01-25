@@ -1,0 +1,31 @@
+stdout ==> /dev/null
+if [ -z $1];
+then
+    echo "Please make sure to enter a version like: 7.2, 7.4"
+    read version;
+
+    brew link php@$version
+    echo 'Exporting to /usr/local/opt/php@'$version'/bin:$PATH'
+    if [ grep 'VERSION'];
+    then
+        sed -i '' 's/VERSION=".*."/VERSION="'$1'"/gi' ~/.zshrc
+    else 
+        echo 'VERSION="'$1'"' > ~/.zshrc
+        echo 'export PATH="/usr/local/opt/php@$VERSION/bin:$PATH"' >> ~/.zshrc
+        echo 'export PATH="/usr/local/opt/php@$VERSION/sbin:$PATH"' >> ~/.zshrc
+    fi
+else 
+
+    brew link php@$1
+    echo 'Exporting to /usr/local/opt/php@'$1'/bin:$PATH'
+    if [ grep 'VERSION'];
+    then
+        sed -i '' 's/VERSION=".*."/VERSION="'$1'"/gi' ~/.zshrc
+    else 
+        echo 'VERSION="'$1'"' > ~/.zshrc
+        echo 'export PATH="/usr/local/opt/php@$VERSION/bin:$PATH"' >> ~/.zshrc
+        echo 'export PATH="/usr/local/opt/php@$VERSION/sbin:$PATH"' >> ~/.zshrc
+    fi
+fi
+
+exec "$SHELL"
