@@ -1,3 +1,4 @@
+config="$HOME/.config/scripts/script_config.config"
 if [ -z $1 ];
     then
         echo "Please make sure to enter the site first"
@@ -21,13 +22,13 @@ PROCESSES=$(ps aux | grep '/usr/local/bin/goto' | awk '{print $2}' | sed 's/'$$'
         done
         
     fi
-
-for i in ~/sites/*
+siteFiles=`cat $config | grep siteFiles=* | sed -e "s/^siteFiles=//"| sed -e "s/\"//g"`
+for i in ~/$siteFiles/*
         do
+        echo $i;
                 if [ -d "$i/$site" ]
                 then
                                 clear
-                                echo "$i" >> /tmp/forwards.txt
                                 echo "Sending you to "$i/$site
                                 cd "$i/$site"
                                 
@@ -36,4 +37,4 @@ for i in ~/sites/*
                 fi
 done
 
-echo "No site found with the name $site"
+echo "No site found with the name $siteFiles/$site"

@@ -1,8 +1,7 @@
+config="$HOME/.config/scripts/script_config.config"
 if [ "$1" != "--config" ];
 then
-    
-    if [ "$1" != "--change-config" ];
-    then
+
     if [ -z $1 ];
         then
             echo "Please make sure to enter the first version"
@@ -18,14 +17,10 @@ then
         else 
             VERSION2=$2;
         fi
-    else 
-    code ~/.config/difftool.config
-    exit
-    fi
 else
 
-    VERSION1=`cat ~/.config/difftool.config | grep VERSION1=* | sed -e "s/^VERSION1=//"| sed -e "s/\"//g"`
-    VERSION2=`cat ~/.config/difftool.config | grep VERSION2=* | sed -e "s/^VERSION2=//"| sed -e "s/\"//g"`
+    VERSION1=`cat $config | grep VERSION1=* | sed -e "s/^VERSION1=//"| sed -e "s/\"//g"`
+    VERSION2=`cat $config | grep VERSION2=* | sed -e "s/^VERSION2=//"| sed -e "s/\"//g"`
 fi
 
 if [ -z $3 ];

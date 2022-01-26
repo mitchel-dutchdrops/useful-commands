@@ -1,0 +1,27 @@
+config="$HOME/.config/scripts/script_config.config"
+versions=`cat $config | grep VERSION1=* | sed -e "s/^VERSION1=//"| sed -e "s/\"//g"`
+echo "What will version 1 be?"
+read version1
+
+
+# echo "VERSION1=$version1" >> $config
+
+echo "What about version 2?"
+read version2
+
+
+if [ $versions ]
+then
+    sed -ie 's/VERSION1=.*/VERSION1='$version1'/g' $config
+    sed -ie 's/VERSION2=.*/VERSION2='$version2'/g' $config
+    echo "it exists"
+    else
+    echo "it doesn't exist"
+    echo "VERSION1=$version1" >> $config
+    echo "VERSION2=$version2" >> $config
+fi
+
+# echo "VERSION2=$version2" >> $config
+
+
+echo "versions have been set to: $version1 > $version2"

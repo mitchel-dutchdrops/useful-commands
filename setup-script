@@ -1,0 +1,16 @@
+config="$HOME/.config/scripts/script_config.config"
+mkdir -p "$HOME/.config/scripts"
+sites=`cat $config | grep siteFiles=* | sed -e "s/^siteFiles=//"| sed -e "s/\"//g"`
+touch $config
+
+echo "Please let me know the location of your site files"
+read sitefiles
+
+if [ $sites ]
+then
+    sed -ie 's/siteFiles=.*/siteFiles='$sitefiles'/g' $config
+
+    else
+    echo "siteFiles=$sitefiles" >> $config
+fi
+
