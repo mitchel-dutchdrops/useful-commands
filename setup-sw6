@@ -15,3 +15,5 @@ bin/console system:install --create-database --basic-setup --force
 cd public
 
 valet link $link
+
+open http://$link.test
