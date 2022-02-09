@@ -1,0 +1,29 @@
+if [ -d './custom/plugins-new' ]
+then
+    rm -rf ./custom/plugins-new
+fi
+
+mkdir ./custom/plugins-new
+
+dirName=$(basename "$PWD")
+echo 'git clone "'$dirName'-plugins"'
+git clone "https://github.com/dutchdrops/$dirName-plugins" ./custom/plugins-new
+
+if [ -d './custom/plugins-old' ]
+then
+    rm -rf ./custom/plugins-old
+fi
+
+cp -rf ./custom/plugins ./custom/plugins-old
+
+rm -rf ./custom/plugins/*
+
+mv -f ./custom/plugins-new/*/* custom/plugins/
+
+
+files="ls custom/plugins/";
+for f in $( eval $files); do
+bin/console plugin:install --activate $f;
+done
+
+bin/console cache:clear

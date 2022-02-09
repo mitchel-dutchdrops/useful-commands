@@ -1,0 +1,17 @@
+    if [ -z $1 ];
+        then
+            echo "Make sure that you enter the link for valet to use"
+            read link;
+        else 
+            link=$1;
+        fi
+
+composer install
+
+bin/console system:setup
+
+bin/console system:install --create-database --basic-setup --force
+
+cd public
+
+valet link $link

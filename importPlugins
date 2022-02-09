@@ -1,5 +1,5 @@
 files="ls custom/project/";
-for f in $( eval $files); do
+for f in $( eval $files ); do
 bin/console sw:plugin:install --activate $f;
 done
 
