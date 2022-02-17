@@ -1,23 +1,53 @@
-echo "Please enter the URL"
-read host
-
-if [ $host = 'exit' ];
+if [ -d "$HOME/.config/scripts/ssh" ];
 then
-    echo "Exitting command have a nice day"
-    exit 1
-else
-    echo "What port do you want to use?"
-    read port
+  #directory exists
+  echo "Checking for directory"
+  else
+  #create directory if it doesn't exist
+  mkdir -p "$HOME/.config/scripts/ssh"
+fi
 
-    if [ $port = "exit" ];
+if [ $1 == "delete" ];
+then
+  rm -rf "$HOME/.config/scripts/ssh/$2"
+  echo "$2 has been deleted in the system"
+  exit
+fi
+
+if [ -z $1 ];
     then
-        echo "Exitting command have a nice day"
-        exit 1
+        echo "Please make sure to enter the name of the ssh you want to use"
+        read repo;
     else
-        echo "Connecting to $host:$port"
-        ssh -p $port $host
+        repo=$1;
     fi
+file="$HOME/.config/scripts/ssh/$repo"
 
+if [ -f $file ];
+then
+    host=`cat $file | grep host=* | sed -e "s/^host=//"| sed -e "s/\"//g"`
+    port=`cat $file | grep port=* | sed -e "s/^port=//"| sed -e "s/\"//g"`
+else
+  echo "$repo does not exist, please enter the host before we can continue"
+  read host;
+
+  if [ -z $host ];
+  then
+    echo "You did not enter a host name. Closing command"
+    exit
+    else
+      echo "please enter the port before we can continue"
+        read port;
+
+        if [ -z $port ];
+        then
+          echo "You did not enter a port. Closing command"
+          exit
+          else
+            echo "host=$host" >> $file
+            echo "port=$port" >> $file
+        fi
+  fi
 fi
 
 ssh -p $port $host
