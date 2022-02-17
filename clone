@@ -1,3 +1,5 @@
+BASE="https://github.com/dutchdrops/"
+
 if [ -z $1 ];
     then
         echo "Please make sure to enter the first version"
@@ -5,8 +7,15 @@ if [ -z $1 ];
     else 
         repo=$1;
     fi
-BASE="https://github.com/dutchdrops/"
-echo "git clone $BASE$repo"
-git clone $BASE$repo
+
+if [ -z $2 ];
+then
+command="$BASE$repo"
+else
+command="-b $2 $BASE$repo"
+fi
+
+echo "git clone $command"
+git clone $command
 cd $repo
 $SHELL
