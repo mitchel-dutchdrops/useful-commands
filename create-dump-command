@@ -26,17 +26,51 @@ if [ -z $database ]; then
     exit 1
 fi
 
-BASE="mysqldump --hex-blob --no-tablespaces --single-transaction --quick -u ${username} -p ${database}"
-AVG=""
-if [ $mode ]; then
-    if [ $mode = 'AVG' ]; then
-        AVG="--ignore-table=${database}.customer --ignore-table=${database}.cart --ignore-table=${database}.customer_address --ignore-table=${database}.customer_group_registration_sales_channels --ignore-table=${database}.customer_recovery --ignore-table=${database}.customer_tag --ignore-table=${database}.customer_wishlist --ignore-table=${database}.customer_wishlist_product --ignore-table=${database}.order --ignore-table=${database}.order_address --ignore-table=${database}.order_customer --ignore-table=${database}.order_delivery --ignore-table=${database}.order_delivery_position --ignore-table=${database}.order_line_item --ignore-table=${database}.order_line_item_download --ignore-table=${database}.order_tag --ignore-table=${database}.order_transaction --ignore-table=${database}.order_transaction_capture --ignore-table=${database}.order_transaction_capture_refund --ignore-table=${database}.order_transaction_capture_refund_position"
-    fi
-fi
 SUBSTRING1="| LANG=C LC_CTYPE=C LC_ALL=C sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/'"
 SUBSTRING2="| LANG=C LC_CTYPE=C LC_ALL=C sed -e 's/ROW_FORMAT=FIXED/ROW_FORMAT=DYNAMIC/'"
 SUBSTRING3="| LANG=C LC_CTYPE=C LC_ALL=C sed -e '/ROW_FORMAT/!s/^) ENGINE=InnoDB/) ENGINE=InnoDB ROW_FORMAT=DYNAMIC/'"
 DATE=$(date +%d-%m-%Y)
 FILE="$DATE-${database}.sql"
 
-echo "$BASE $AVG $SUBSTRING1 $SUBSTRING2 $SUBSTRING3 > $FILE"
+BASE="mysqldump --hex-blob --no-tablespaces --single-transaction --quick -u ${username} -p ${database}"
+AVG=""
+
+if [ $mode ]; then
+    if [ $mode = 'AVG' ]; then
+    AVGTABLES=(
+        "customer"
+        "cart"
+        "customer_address"
+        "customer_group_registration_sales_channels"
+        "customer_recovery"
+        "customer_tag"
+        "customer_wishlist"
+        "customer_wishlist_product"
+        "order"
+        "order_address"
+        "order_customer"
+        "order_delivery"
+        "order_delivery_position"
+        "order_line_item"
+        "order_line_item_download"
+        "order_tag"
+        "order_transaction"
+        "order_transaction_capture"
+        "order_transaction_capture_refund"
+        "order_transaction_capture_refund_position"
+    );
+
+    IGNORETABLES=""
+    INCLUDETABLES=""
+    for table in ${AVGTABLES[@]}; do
+      IGNORETABLES="${IGNORETABLES}--ignore-table=${database}.${table} "
+      INCLUDETABLES="${INCLUDETABLES} ${table}"
+    done
+
+    echo "$BASE -d $INCLUDETABLES $SUBSTRING1 $SUBSTRING2 $SUBSTRING3 > $FILE"
+
+    fi
+fi
+
+
+echo "$BASE $IGNORETABLES $SUBSTRING1 $SUBSTRING2 $SUBSTRING3 >> $FILE"
