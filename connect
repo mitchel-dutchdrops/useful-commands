@@ -1,53 +1,64 @@
-if [ -d "$HOME/.config/scripts/ssh" ];
-then
+if [ -d "$HOME/.config/scripts/ssh" ]; then
   #directory exists
-  echo "Checking for directory"
-  else
+  DIR=true
+else
   #create directory if it doesn't exist
   mkdir -p "$HOME/.config/scripts/ssh"
 fi
 
-if [ $1 == "delete" ];
-then
+if [ $1 == "list" ]; then
+  echo "Listing all registered connections"
+  ls -1 $HOME/.config/scripts/ssh
+  exit
+fi
+
+if [ $1 == "delete" ]; then
   rm -rf "$HOME/.config/scripts/ssh/$2"
   echo "$2 has been deleted in the system"
   exit
 fi
 
-if [ -z $1 ];
-    then
-        echo "Please make sure to enter the name of the ssh you want to use"
-        read repo;
-    else
-        repo=$1;
-    fi
+if [ -z $1 ]; then
+  echo "Please make sure to enter the name of the ssh you want to use"
+  read repo
+else
+  repo=$1
+fi
+if [ $1 == "info" ]; then
+  cat $HOME/.config/scripts/ssh/$2
+  exit
+fi
 file="$HOME/.config/scripts/ssh/$repo"
 
-if [ -f $file ];
-then
-    host=`cat $file | grep host=* | sed -e "s/^host=//"| sed -e "s/\"//g"`
-    port=`cat $file | grep port=* | sed -e "s/^port=//"| sed -e "s/\"//g"`
+if [ -f $file ]; then
+  host=$(cat $file | grep host=* | sed -e "s/^host=//" | sed -e "s/\"//g")
+  port=$(cat $file | grep port=* | sed -e "s/^port=//" | sed -e "s/\"//g")
+  login=$(cat $file | grep login=* | sed -e "s/^login=//" | sed -e "s/\"//g")
 else
   echo "$repo does not exist, please enter the host before we can continue"
-  read host;
+  read host
 
-  if [ -z $host ];
-  then
+  if [ -z $host ]; then
     echo "You did not enter a host name. Closing command"
     exit
-    else
-      echo "please enter the port before we can continue"
-        read port;
+  else
+    echo "please enter the port before we can continue"
+    read port
 
-        if [ -z $port ];
-        then
-          echo "You did not enter a port. Closing command"
-          exit
-          else
-            echo "host=$host" >> $file
-            echo "port=$port" >> $file
-        fi
+    if [ -z $port ]; then
+      port=22
+    fi
+    echo "please enter the login before we can continue"
+    read login
+    if [ -z $login ]; then
+      echo "You did not enter a login. Closing command"
+      exit
+    else
+      echo "host=$host" >>$file
+      echo "port=$port" >>$file
+      echo "login=$login" >>$file
+    fi
   fi
 fi
 
-ssh -p $port $host
+ssh -p $port $host -l $login
