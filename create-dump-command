@@ -1,30 +1,67 @@
 help() {
-	echo "usage: create-dump-command [-n <name>][-d <database>][-m <AVG>][-name <name>][-database <database>][-mode <AVG>]"
+	echo "usage: create-dump-command [-n <name>][-d <database>][-m <AVG>][-e (y/n)][-h]"
+	echo "-n     Username used for the database"
+	echo "-d     Database name"
+	echo "-m     Mode used for the commands (CURRENTLY ONLY OPTION AVG)"
+	echo "-e     Run command Externally"
+	echo "-h     Show this page"
 }
 
-while getopts n:d:m:name:database:mode: flag
+while getopts n:d:m:e:h:name:database:mode:external:help: flag
 
 do
         case "${flag}" in
+                h) # display Help
+                 help
+                 exit;;
+               help) # display Help
+                                help
+                                exit;;
                 n) username="$OPTARG";;
                 name) username="$OPTARG";;
                 d) database="$OPTARG" ;;
                 database) database="$OPTARG" ;;
                 m) mode='AVG';;
                 mode) mode='AVG';;
+                e) external="$OPTARG";;
+                external) external="$OPTARG";;
                 *) echo "Invalid option: -$flag." && help ;;
         esac
 done
 
 if [ -z $username ]; then
-    echo "Missing -n argument" && help
-    exit 1
+    read -p "Username has not been added to the command - " username
+    if [ -z $username ]; then
+        echo "Username has not been added a second time. Closing command"
+        exit
+    fi
 fi
 
 if [ -z $database ]; then
-    echo "Missing -d argument" && help
-    exit 1
+        read -p "Database has not been added to the command - " database
+        if [ -z $database ]; then
+            echo "Database has not been added a second time. Closing command"
+            exit
+        fi
 fi
+
+if [ -z $external ]; then
+        read -p "Do you want to run this command on an external host? (y/n) - " external
+fi
+
+case $external in
+        	[yY] )
+        	   read -p "What is the host url? - " host
+               read -p "What is the port? (Leave empty if port is 22) - " port
+               if [ -z $port ]; then
+                    port=22
+               fi
+               read -p "What is the username of the host? - " sshusername
+                BASE="ssh -p $port $username@$host"
+        		break;;
+        	[nN] ) echo Command will be uploaded;
+        		break;;
+        esac
 
 SUBSTRING1="| LANG=C LC_CTYPE=C LC_ALL=C sed -e 's/DEFINER[ ]*=[ ]*[^*]*\*/\*/'"
 SUBSTRING2="| LANG=C LC_CTYPE=C LC_ALL=C sed -e 's/ROW_FORMAT=FIXED/ROW_FORMAT=DYNAMIC/'"
@@ -32,9 +69,9 @@ SUBSTRING3="| LANG=C LC_CTYPE=C LC_ALL=C sed -e '/ROW_FORMAT/!s/^) ENGINE=InnoDB
 DATE=$(date +%d-%m-%Y)
 FILE="$DATE-${database}.sql"
 
-BASE="mysqldump --hex-blob --no-tablespaces --single-transaction --quick -u ${username} -p ${database}"
+BASE="$BASE mysqldump --hex-blob --no-tablespaces --single-transaction --quick -u ${username} -p ${database}"
 AVG=""
-
+MODECOMMAND=null
 if [ $mode ]; then
     if [ $mode = 'AVG' ]; then
     AVGTABLES=(
@@ -67,10 +104,19 @@ if [ $mode ]; then
       INCLUDETABLES="${INCLUDETABLES} ${table}"
     done
 
-    echo "$BASE -d $INCLUDETABLES $SUBSTRING1 $SUBSTRING2 $SUBSTRING3 > $FILE"
+    MODECOMMAND="$BASE -d $INCLUDETABLES $SUBSTRING1 $SUBSTRING2 $SUBSTRING3 > $FILE"
 
     fi
 fi
-
-
-echo "$BASE $IGNORETABLES $SUBSTRING1 $SUBSTRING2 $SUBSTRING3 >> $FILE"
+normalCommand="$BASE $IGNORETABLES $SUBSTRING1 $SUBSTRING2 $SUBSTRING3 >> $FILE";
+if [[ $external == "y" ]]; then
+  if [[ $mode == 'AVG' ]]; then
+    $MODECOMMAND
+  fi
+  $normalCommand
+else
+  if [[ $mode == 'AVG' ]]; then
+      echo "$MODECOMMAND"
+  fi
+  echo "$normalCommand"
+fi
